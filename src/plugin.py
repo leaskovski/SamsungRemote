@@ -2,7 +2,7 @@ from Plugins.Plugin import PluginDescriptor
 from Components.HdmiCec import HdmiCec
 from enigma import eActionMap
 from sys import maxint
-from .remote import SamsungTV
+from samsungtv.remote import SamsungTV
 
 
 def debug(str):
