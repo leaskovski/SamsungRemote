@@ -3,7 +3,7 @@ import json
 import logging
 import time
 import ssl
-import websocket
+from .. import websocket
 
 class SamsungTV():
 

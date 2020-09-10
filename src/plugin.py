@@ -4,7 +4,6 @@ from enigma import eActionMap
 from sys import maxint
 from samsungtv.remote import SamsungTV
 
-
 def debug(str):
     with open('/tmp/SamsungRemote.log', 'a') as d:
         d.write(str + '\n')
