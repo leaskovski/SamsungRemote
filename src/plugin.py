@@ -3,11 +3,9 @@ from Components.HdmiCec import HdmiCec
 from enigma import eActionMap
 from sys import maxint
 from .remote import SamsungTV
-import socket
 
 
 def debug(str):
-    return
     with open('/tmp/SamsungRemote.log', 'a') as d:
         d.write(str + '\n')
 
