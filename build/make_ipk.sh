@@ -5,11 +5,12 @@ VERSION=1.0-r1
 INSTALL_LOCATION=/usr/lib/enigma2/python/Plugins/Extensions/SamsungRemote
 
 # Make the directory for putting all the files in for the IPK
-mkdir -p ${PACKAGE_NAME}/{control,data}
+mkdir ${PACKAGE_NAME}/control
+mkdir ${PACKAGE_NAME}/data
 
 # Create the folder structure and copy in source files for data.tar
 mkdir -p ${PACKAGE_NAME}/data/${INSTALL_LOCATION}
-cp -r ../src ./${PACKAGE_NAME}/data/${INSTALL_LOCATION}
+cp -r ../src/* ./${PACKAGE_NAME}/data/${INSTALL_LOCATION}
 
 # Create the control file for control.tar
 cat > ./${PACKAGE_NAME}/control/control <<EOF
