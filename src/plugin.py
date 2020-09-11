@@ -21,8 +21,6 @@ def debug(locationStr, messageStr):
 class SamsungRemote():
 
     def __init__(self):
-        self._tv = None
-
         # Bind to the HDMI CEC plugin so that on key presses we get triggered
         debug('SamsungRemote.__init__','Binding to HDMI CEC plugin')
         eActionMap.getInstance().unbindAction('', HdmiCec.instance.keyEvent)
@@ -40,35 +38,38 @@ class SamsungRemote():
             return 0        
 
         # Try to connect to the TV
-        if self._tv == None:
-            debug('SamsungRemote.keyEvent','Connecting to TV ' + TV_ADDRESS)
-            try:
-                self._tv = SamsungTV(TV_ADDRESS)
-            except Exception, e:
-                debug('SamsungRemote.keyEvent','Unable to connect to TV, Error:' + str(e))
-                return 0
+        debug('SamsungRemote.keyEvent','Connecting to TV ' + TV_ADDRESS)
+        try:
+            tv = SamsungTV(TV_ADDRESS)
+        except Exception, e:
+            debug('SamsungRemote.keyEvent','Unable to connect to TV, Error:' + str(e))
+            return 0
 
         # Define the result code, 1=handled, 0=not handled
         handledInt = 0
 
         # Try to handle the keycode
         try:
-            if keyCode == 115 and keyEvent == 1:
+            if keyCode == 115:
                 # vol+
                 handledInt = 1
-                self._tv.volume_up
-            elif keyCode == 114 and keyEvent == 1:
+                if keyEvent == 1:
+                    tv.volume_up()
+            elif keyCode == 114:
                 # vol-
                 handledInt = 1
-                self._tv.volume_down
-            elif keyCode == 113 and keyEvent == 1:
+                if keyEvent == 1:
+                    tv.volume_down()
+            elif keyCode == 113:
                 # mute
                 handledInt = 1
-                self._tv.mute
+                if keyEvent == 1:
+                    tv.mute()
         except Exception, e:
             handledInt = 0
             debug('SamsungRemote.keyEvent','Error:' + str(e))
                 
+        tv.close()
         debug('SamsungRemote.keyEvent','KeyCode=' + str(keyCode) + ', KeyEvent=' + str(keyEvent) + ', Handled=' + str(handledInt))
         return handledInt
 
