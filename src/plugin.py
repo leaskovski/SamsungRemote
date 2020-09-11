@@ -3,58 +3,74 @@ from Components.HdmiCec import HdmiCec
 from enigma import eActionMap
 from sys import maxint
 from samsungtv.remote import SamsungTV
+from time import gmtime, strftime
+import sys
 
 
-def debug(str):
+# IP Address of the TV
+TV_ADDRESS = '192.168.0.100'
+# Supported key codes that we want to handle
+SUPPORTED_KEYS = [113,114,115]
+
+
+def debug(locationStr, messageStr):
     with open('/tmp/SamsungRemote.log', 'a') as d:
-        d.write(str + '\n')
+        d.write(strftime('%x %X', gmtime()) + ' - ' + locationStr + ' - ' + messageStr + '\n')
 
 
 class SamsungRemote():
 
     def __init__(self):
-        debug('SamsungRemote.__init__')
+        self._tv = None
+
+        # Bind to the HDMI CEC plugin so that on key presses we get triggered
+        debug('SamsungRemote.__init__','Binding to HDMI CEC plugin')
         eActionMap.getInstance().unbindAction('', HdmiCec.instance.keyEvent)
         eActionMap.getInstance().bindAction('', -maxint - 1, self.keyEvent)
 
+
     def keyEvent(self, keyCode, keyEvent):
+
+        # We havent enabled volume forwarding so exit unhandled
         if not HdmiCec.instance.volumeForwardingEnabled:
             return 0
 
-        debug('SamsungRemote.keyEvent ' + str(keyCode) + ' ' + str(keyEvent))
+        # If the keycode isn't in our list of handled codes, then exit unhandled
+        if not keyCode in SUPPORTED_KEYS:
+            return 0        
 
-        try:
-            tv = SamsungTV('192.168.0.100')
-
+        # Try to connect to the TV
+        if self._tv == None:
+            debug('SamsungRemote.keyEvent','Connecting to TV ' + TV_ADDRESS)
             try:
-                if keyCode == 115:
-                    # vol+
-                    tv.volume_up
-                elif keyCode == 114:
-                    # vol-
-                    tv.volume_down
-                elif keyCode == 113:
-                    # mute
-                    tv.mute
-                else:
-                    # key not handled
-                    return 0
+                self._tv = SamsungTV(TV_ADDRESS)
+            except Exception, e:
+                debug('SamsungRemote.keyEvent','Unable to connect to TV, Error:' + str(e))
+                return 0
 
-                if keyEvent == 1:
-                    # key release handled
-                    return 1
-                elif keyEvent != 0 and keyEvent != 2:
-                    # other type of event not handled
-                    return 0
+        # Define the result code, 1=handled, 0=not handled
+        handledInt = 0
 
-            finally:
-                debug('SamsungRemote.keyEvent complete')
-                tv.close
-                return 1
-
-        except:
-            debug('SamsungRemote.keyEvent unable to connect to TV')
-            return 0
+        # Try to handle the keycode
+        try:
+            if keyCode == 115 and keyEvent == 1:
+                # vol+
+                handledInt = 1
+                self._tv.volume_up
+            elif keyCode == 114 and keyEvent == 1:
+                # vol-
+                handledInt = 1
+                self._tv.volume_down
+            elif keyCode == 113 and keyEvent == 1:
+                # mute
+                handledInt = 1
+                self._tv.mute
+        except Exception, e:
+            handledInt = 0
+            debug('SamsungRemote.keyEvent','Error:' + str(e))
+                
+        debug('SamsungRemote.keyEvent','KeyCode=' + str(keyCode) + ', KeyEvent=' + str(keyEvent) + ', Handled=' + str(handledInt))
+        return handledInt
 
 
 def main(session, **kwargs):
