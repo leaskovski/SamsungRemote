@@ -10,7 +10,13 @@ Download the IPK to a folder on your Enigma2 box, and then go the "System > Soft
 
 ## Authors and acknowledgement
 
+Originally based upon the idea:
 Plasticassius - <https://forums.openpli.org/user/186709-plasticassius/>
+
+This plugin uses the following pip classes:
+* SamsungTV - <https://pypi.org/project/samsungtv/>
+* WebSocket_Client - <https://pypi.org/project/websocket_client/>
+* Six - <https://pypi.org/project/six/>
 
 ## License
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
