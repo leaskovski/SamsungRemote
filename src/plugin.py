@@ -8,7 +8,8 @@ from Screens.Screen import Screen
 from enigma import eActionMap
 from sys import maxint
 from samsungtv.remote import SamsungTV
-from time import gmtime, strftime
+from time import strftime
+from datetime import datetime
 
 import sys
 
@@ -16,14 +17,30 @@ import sys
 # Config settings for the plugin
 config.plugins.SamsungRemote = ConfigSubsection()
 config.plugins.SamsungRemote.tv_address = ConfigText(default="", fixed_size=False)
+config.plugins.SamsungRemote.log_enabled = ConfigYesNo(default=False)
+config.plugins.SamsungRemote.log_file = ConfigText(default="/tmp/SamsungRemote.log", fixed_size=False)
 
 # Supported key codes that we want to handle
 SUPPORTED_KEYS = [113, 114, 115]
+KEY_CODES_DICT = {
+    113:'Mute',
+    114:'Volume Down',
+    115:'Volume Up'
+}
+KEY_EVENTS_DICT = {
+    0:'Button Pressed',
+    1:'Button Released'
+}
+HANDLED_DICT = {
+    0:'No',
+    1:'Yes'
+}
 
 
 def debug(locationStr, messageStr):
-    with open('/tmp/SamsungRemote.log', 'a') as d:
-        d.write(strftime('%x %X', gmtime()) + ' - ' + locationStr + ' - ' + messageStr + '\n')
+    if config.plugins.SamsungRemote.log_enabled.value:
+        with open(config.plugins.SamsungRemote.log_file.value, 'a') as d:
+            d.write(datetime.now().strftime('%x-%H:%M:%S.%f') + ' - ' + locationStr + ' - ' + messageStr + '\n')
 
 
 class SamsungRemote():
@@ -66,6 +83,7 @@ class SamsungRemote():
         handledInt = 0
 
         # Try to handle the keycode
+        debug('SamsungRemote.keyEvent', 'KeyCode=' + str(KEY_CODES_DICT.get(keyCode)) + ', KeyEvent=' + str(KEY_EVENTS_DICT.get(keyEvent)))
         try:
             if keyCode == 115:
                 # vol+
@@ -87,7 +105,7 @@ class SamsungRemote():
             debug('SamsungRemote.keyEvent', 'Error:' + str(e))
             self._connected = False
 
-        debug('SamsungRemote.keyEvent', 'KeyCode=' + str(keyCode) + ', KeyEvent=' + str(keyEvent) + ', Handled=' + str(handledInt))
+        debug('SamsungRemote.keyEvent', 'Handled=' + str(HANDLED_DICT.get(handledInt)))
         return handledInt
 
 
@@ -120,7 +138,9 @@ class SamsungRemoteConfigFunction(ConfigListScreen, Screen):
         Screen.__init__(self, session)
         self["key_green"] = Label(_("Save"))
         self.cfglist = []
-        self.cfglist.append(getConfigListEntry(_("tv_address:"), config.plugins.SamsungRemote.tv_address))
+        self.cfglist.append(getConfigListEntry(_("TV IP Address:"), config.plugins.SamsungRemote.tv_address))
+        self.cfglist.append(getConfigListEntry(_("Logging Enabled:"), config.plugins.SamsungRemote.log_enabled))
+        self.cfglist.append(getConfigListEntry(_("Log File:"), config.plugins.SamsungRemote.log_file))
         ConfigListScreen.__init__(self, self.cfglist, session)
         self["actions"] = ActionMap(["OkCancelActions", "ColorActions"], {"green": self.save, "cancel": self.exit}, -1)
 

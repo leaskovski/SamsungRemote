@@ -9,8 +9,6 @@ class SamsungTV():
 
     _URL_FORMAT = 'wss://{host}:{port}/api/v2/channels/samsung.remote.control?name={name}&token={token}'
 
-    _KEY_INTERVAL = 1.5
-
     def __init__(self, host, token='', port=8002, name='SamsungTvRemote'):
         self.connection = websocket.create_connection(
             self._URL_FORMAT.format(**{
@@ -62,7 +60,6 @@ class SamsungTV():
 
             logging.info('Sending key %s', key)
             self.connection.send(payload)
-            time.sleep(self._KEY_INTERVAL)
 
     # power
     def power(self):
