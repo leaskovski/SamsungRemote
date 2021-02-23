@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PACKAGE_NAME=enigma2-plugin-extensions-samsungremote
-VERSION=1.0-r1
+VERSION=1.1-r1
 INSTALL_LOCATION=/usr/lib/enigma2/python/Plugins/Extensions/SamsungRemote
 
 # Make the directory for putting all the files in for the IPK
